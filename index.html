@@ -1,283 +1,405 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="el">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#e2231a">
+<title>Σκάνερ Καρτών · 4A Worldwide Express</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23c8102e'/%3E%3Ctext x='50' y='68' font-family='Arial Black,sans-serif' font-size='55' font-weight='900' fill='white' text-anchor='middle'%3E4A%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#c8102e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="4A Σκάνερ">
-<link rel="apple-touch-icon" href="data:image/jpeg;base64,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">
-<title>4A Express — Σκάνερ Καρτών</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-title" content="Σκάνερ 4A">
 <style>
-  :root{
-    --navy:#0b2545;
-    --ink:#11151c;
-    --paper:#f4f6fb;
-    --card:#ffffff;
-    --line:#e3e8f2;
-    --muted:#6b7a99;
-    --accent:#e2231a;
-    --accent-d:#bd1810;
-    --blue:#2f80ed;
-    --green:#19a974;
-    --shadow:0 14px 40px rgba(11,37,69,.16);
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{margin:0;padding:0;height:100%;}
-  body{
-    font-family:'Manrope',system-ui,sans-serif;
-    background:var(--paper);
-    color:var(--ink);
-    overflow-x:hidden;
-    -webkit-font-smoothing:antialiased;
-  }
-  .app{
-    max-width:460px;margin:0 auto;min-height:100dvh;
-    display:flex;flex-direction:column;position:relative;
-    background:var(--paper);
-  }
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f2f4f7;color:#1a2340;-webkit-tap-highlight-color:transparent}
+  body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .app{max-width:640px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+  header{background:white;padding:14px 18px;border-bottom:1px solid #e5e8ee;display:flex;align-items:center;gap:12px}
+  .logo{width:46px;height:46px;background:#c8102e;border:2px solid #1a2340;display:flex;align-items:center;justify-content:center;font-family:"Arial Black",sans-serif;font-weight:900;color:white;font-size:20px;letter-spacing:-1px;flex-shrink:0}
+  .logo-text{line-height:1.15}
+  .logo-text .t1{font-size:17px;font-weight:700;color:#1a2340;letter-spacing:.2px}
+  .logo-text .t2{font-size:10px;color:#7a8194;letter-spacing:1.5px;font-weight:600}
+  main{flex:1;padding:18px;display:flex;flex-direction:column}
+  .screen{display:none;flex:1;flex-direction:column;animation:fade .25s ease-out}
+  .screen.active{display:flex}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ---------- HEADER ---------- */
-  header{
-    background:#fff;border-bottom:1px solid var(--line);
-    padding:calc(env(safe-area-inset-top) + 14px) 18px 14px;
-    display:flex;align-items:center;gap:13px;
-  }
-  header img.logo{height:42px;width:auto;display:block;}
-  header .divider{width:1px;height:30px;background:var(--line);}
-  header .tag{font-family:'Commissioner',sans-serif;font-weight:600;font-size:14px;color:var(--navy);letter-spacing:.2px;}
-  header .tag .s{display:block;font-family:'Manrope';font-weight:500;font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+  /* ===== SCAN SCREEN ===== */
+  #scan{align-items:center;justify-content:center;text-align:center;gap:22px;padding:20px 0}
+  .scan-icon{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,#c8102e,#a30d24);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(200,16,46,.28);margin-bottom:6px}
+  .scan-icon svg{width:70px;height:70px;fill:white}
+  .scan-title{font-size:22px;font-weight:700;color:#1a2340;margin:0}
+  .scan-sub{font-size:15px;color:#5a6479;margin:0;max-width:280px;line-height:1.5}
+  .scan-btn{background:#c8102e;color:white;border:none;padding:20px 40px;font-size:19px;font-weight:700;border-radius:14px;cursor:pointer;box-shadow:0 8px 20px rgba(200,16,46,.32);display:inline-flex;align-items:center;gap:12px;transition:transform .1s}
+  .scan-btn:active{transform:scale(.97)}
+  .file-hidden{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 
-  /* ---------- SCREENS ---------- */
-  .screen{flex:1;display:none;flex-direction:column;}
-  .screen.on{display:flex;animation:fade .4s ease;}
-  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
-  /* ---------- SCAN SCREEN ---------- */
-  #scan{padding:0;justify-content:center;}
-  .scan-wrap{padding:26px 22px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;}
-  .frame{
-    width:240px;height:152px;border-radius:18px;margin:6px auto 26px;
-    border:2px dashed #c4cee0;position:relative;
-    display:flex;align-items:center;justify-content:center;
-    background:#fff;
-    box-shadow:var(--shadow);
-  }
-  .frame .corner{position:absolute;width:26px;height:26px;border:3px solid var(--accent);}
-  .frame .c1{top:-2px;left:-2px;border-right:0;border-bottom:0;border-radius:8px 0 0 0;}
-  .frame .c2{top:-2px;right:-2px;border-left:0;border-bottom:0;border-radius:0 8px 0 0;}
-  .frame .c3{bottom:-2px;left:-2px;border-right:0;border-top:0;border-radius:0 0 0 8px;}
-  .frame .c4{bottom:-2px;right:-2px;border-left:0;border-top:0;border-radius:0 0 8px 0;}
-  .frame .cardicon{font-size:46px;opacity:.5;}
-  .frame .scanline{position:absolute;left:8px;right:8px;height:3px;border-radius:3px;
-    background:linear-gradient(90deg,transparent,var(--accent),transparent);
-    top:14px;animation:scan 2.4s ease-in-out infinite;}
-  @keyframes scan{0%,100%{top:14px}50%{top:130px}}
-
-  .scan-wrap h1{font-family:'Commissioner',sans-serif;font-weight:700;font-size:23px;margin:0 0 8px;letter-spacing:-.3px;}
-  .scan-wrap p{color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 28px;max-width:300px;}
-
-  .big-btn{
-    width:100%;max-width:330px;border:0;cursor:pointer;
-    background:linear-gradient(145deg,var(--accent),var(--accent-d));
-    color:#fff;font-family:'Manrope',sans-serif;font-weight:700;font-size:18px;
-    padding:19px;border-radius:17px;
-    box-shadow:0 10px 26px rgba(226,35,26,.38);
-    display:flex;align-items:center;justify-content:center;gap:10px;
-    transition:transform .12s ease, box-shadow .12s ease;
-  }
-  .big-btn:active{transform:scale(.97);box-shadow:0 6px 16px rgba(226,35,26,.36);}
-  .big-btn .cam{font-size:22px;}
-  .hint{margin-top:18px;font-size:12.5px;color:var(--muted);}
-
-  /* ---------- READING SCREEN ---------- */
-  #reading{justify-content:center;align-items:center;text-align:center;padding:40px;}
-  .thumb{width:200px;border-radius:14px;box-shadow:var(--shadow);margin-bottom:26px;}
-  .spinner{width:44px;height:44px;border:4px solid var(--line);border-top-color:var(--accent);
-    border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px;}
+  /* ===== READING SCREEN ===== */
+  #reading{align-items:center;justify-content:center;gap:28px;text-align:center}
+  .spinner{width:80px;height:80px;border:6px solid #e5e8ee;border-top-color:#c8102e;border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  #reading h2{font-family:'Commissioner',sans-serif;font-size:19px;margin:0 0 6px;}
-  #reading p{color:var(--muted);font-size:14px;margin:0;}
+  .reading-title{font-size:19px;font-weight:700;color:#1a2340;margin:0}
+  .reading-sub{font-size:14px;color:#5a6479;margin:0;max-width:280px;line-height:1.5}
+  .progress-wrap{width:100%;max-width:280px;background:#e5e8ee;border-radius:99px;height:10px;overflow:hidden}
+  .progress-bar{background:linear-gradient(90deg,#c8102e,#e63550);height:100%;width:0%;border-radius:99px;transition:width .3s ease}
+  .progress-text{font-size:13px;color:#7a8194;font-weight:600}
 
-  /* ---------- FORM SCREEN ---------- */
-  #form{padding:0;}
-  .demo-banner{
-    background:#fff1f0;color:var(--accent-d);font-size:12.5px;font-weight:600;
-    text-align:center;padding:9px 16px;border-bottom:1px solid #ffd9d6;
-  }
-  .form-head{padding:20px 22px 6px;}
-  .form-head h2{font-family:'Commissioner',sans-serif;font-size:21px;margin:0 0 4px;letter-spacing:-.3px;}
-  .form-head .sub{color:var(--muted);font-size:13.5px;}
-  .fields{padding:14px 22px 8px;display:flex;flex-direction:column;gap:14px;}
-  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin:0 0 6px;letter-spacing:.2px;}
-  .field .ip{position:relative;}
-  .field .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;opacity:.6;}
-  .field input{
-    width:100%;border:1.5px solid var(--line);background:#fff;border-radius:13px;
-    padding:15px 14px 15px 44px;font-family:'Manrope',sans-serif;font-size:16px;color:var(--ink);
-    transition:border-color .15s ease, box-shadow .15s ease;
-  }
-  .field input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px rgba(226,35,26,.12);}
+  /* ===== FORM SCREEN ===== */
+  .form-title{font-size:22px;font-weight:700;margin:6px 0 4px;color:#1a2340}
+  .form-sub{font-size:14px;color:#5a6479;margin:0 0 20px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;font-weight:600;color:#5a6479;margin-bottom:6px;padding-left:2px}
+  .input-wrap{background:white;border:2px solid #e5e8ee;border-radius:12px;display:flex;align-items:center;padding:0 14px;transition:border-color .15s}
+  .input-wrap:focus-within{border-color:#c8102e}
+  .input-wrap.empty{border-color:#ffb3b3;background:#fff5f5}
+  .input-wrap .icon{font-size:20px;margin-right:10px;opacity:.7}
+  .input-wrap input{flex:1;border:none;background:transparent;padding:15px 0;font-size:16px;color:#1a2340;font-family:inherit;outline:none;min-width:0}
+  .empty-hint{font-size:12px;color:#c8102e;margin-top:4px;padding-left:2px;font-weight:600;display:none}
+  .field .input-wrap.empty ~ .empty-hint{display:block}
+  .status-box{background:#e8f0ff;border:1px solid #c4d4f0;border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px;margin:20px 0 12px}
+  .status-dot{width:14px;height:14px;border-radius:50%;background:#3b6dd3;flex-shrink:0}
+  .status-box .st1{font-size:15px;font-weight:700;color:#1a2340}
+  .status-box .st2{font-size:13px;color:#5a6479;margin-top:2px}
+  .raw-toggle{background:none;border:none;color:#7a8194;font-size:13px;text-decoration:underline;padding:8px 0;cursor:pointer;font-family:inherit;text-align:left}
+  .raw-box{background:#1a2340;color:#c4d4f0;font-family:"SF Mono","Consolas",monospace;font-size:12px;padding:12px;border-radius:8px;white-space:pre-wrap;word-break:break-word;max-height:200px;overflow:auto;margin-bottom:12px;display:none}
+  .raw-box.show{display:block}
+  .btn-row{display:flex;flex-direction:column;gap:10px;margin-top:auto;padding-top:10px}
+  .btn{padding:17px;font-size:17px;font-weight:700;border-radius:12px;cursor:pointer;border:none;font-family:inherit;transition:transform .1s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:#22a06b;color:white;box-shadow:0 4px 12px rgba(34,160,107,.25)}
+  .btn-secondary{background:white;color:#5a6479;border:1px solid #e5e8ee}
 
-  .status-row{
-    margin:16px 22px 0;background:#eaf2ff;border:1px solid #d4e4ff;border-radius:13px;
-    padding:13px 15px;display:flex;align-items:center;gap:10px;
-  }
-  .dot{width:11px;height:11px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 4px rgba(47,128,237,.18);}
-  .status-row .t b{font-size:14px;}
-  .status-row .t span{display:block;font-size:12px;color:var(--muted);}
+  /* ===== DONE SCREEN ===== */
+  #done{align-items:center;justify-content:center;text-align:center;gap:14px;padding:20px 0}
+  .check-circle{width:130px;height:130px;border-radius:50%;background:#22a06b;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(34,160,107,.28);margin-bottom:6px;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .check-circle svg{width:70px;height:70px;stroke:white;stroke-width:6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .done-title{font-size:26px;font-weight:800;color:#1a2340;margin:0}
+  .done-name{font-size:18px;color:#3b6dd3;font-weight:600;margin:0 0 14px}
+  .done-card{background:white;border-radius:14px;padding:6px 18px;width:100%;max-width:340px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .done-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px dashed #e5e8ee}
+  .done-item:last-child{border-bottom:none}
+  .done-item .icon{font-size:20px;width:24px;text-align:center}
+  .done-item .text{font-size:14px;color:#1a2340;text-align:left}
+  .done-item .text .highlight{color:#22a06b;font-weight:700}
+  .new-btn{background:#c8102e;color:white;border:none;padding:20px;font-size:19px;font-weight:700;border-radius:14px;cursor:pointer;box-shadow:0 8px 20px rgba(200,16,46,.32);width:100%;max-width:340px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px}
+  .new-btn:active{transform:scale(.98)}
 
-  .actions{padding:22px;margin-top:auto;display:flex;flex-direction:column;gap:11px;}
-  .primary{
-    border:0;cursor:pointer;background:var(--green);color:#fff;
-    font-family:'Manrope',sans-serif;font-weight:700;font-size:17px;padding:18px;border-radius:15px;
-    box-shadow:0 8px 22px rgba(25,169,116,.34);display:flex;align-items:center;justify-content:center;gap:9px;
-    transition:transform .12s ease;
-  }
-  .primary:active{transform:scale(.97);}
-  .ghost{
-    border:1.5px solid var(--line);background:#fff;cursor:pointer;color:var(--muted);
-    font-family:'Manrope',sans-serif;font-weight:600;font-size:15px;padding:14px;border-radius:14px;
-  }
-
-  /* ---------- SUCCESS SCREEN ---------- */
-  #done{justify-content:center;align-items:center;text-align:center;padding:40px 30px;}
-  .check{
-    width:92px;height:92px;border-radius:50%;background:var(--green);
-    display:flex;align-items:center;justify-content:center;margin:0 auto 24px;
-    box-shadow:0 12px 34px rgba(25,169,116,.4);animation:pop .5s cubic-bezier(.2,1.3,.5,1);
-  }
-  .check svg{width:46px;height:46px;}
-  @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
-  #done h2{font-family:'Commissioner',sans-serif;font-size:24px;margin:0 0 10px;letter-spacing:-.3px;}
-  #done .who{font-size:17px;font-weight:700;color:var(--navy);margin:0 0 18px;}
-  .receipt{
-    width:100%;background:#fff;border:1px solid var(--line);border-radius:16px;
-    padding:16px 18px;text-align:left;box-shadow:var(--shadow);margin-bottom:26px;
-  }
-  .receipt .ln{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;border-bottom:1px dashed var(--line);}
-  .receipt .ln:last-child{border-bottom:0;}
-  .receipt .ln .e{font-size:17px;}
-  .receipt .ln b{color:var(--green);}
+  /* Error banner */
+  .err{background:#fff5f5;border:1px solid #ffb3b3;color:#c8102e;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:14px}
 </style>
 </head>
 <body>
 <div class="app">
 
   <header>
-    <img class="logo" src="data:image/jpeg;base64,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" alt="4A Worldwide Express">
-    <div class="divider"></div>
-    <div class="tag">Σκάνερ Καρτών<span class="s">Υποψήφιοι Πελάτες</span></div>
+    <div class="logo">4A</div>
+    <div class="logo-text">
+      <div class="t1">Σκάνερ Καρτών</div>
+      <div class="t2">ΥΠΟΨΗΦΙΟΙ ΠΕΛΑΤΕΣ</div>
+    </div>
   </header>
 
-  <!-- 1) SCAN -->
-  <section id="scan" class="screen on">
-    <div class="scan-wrap">
-      <div class="frame">
-        <div class="corner c1"></div><div class="corner c2"></div>
-        <div class="corner c3"></div><div class="corner c4"></div>
-        <div class="scanline"></div>
-        <div class="cardicon">💳</div>
+  <main>
+    <!-- ============ SCREEN 1: SCAN ============ -->
+    <section id="scan" class="screen active">
+      <div class="scan-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
       </div>
-      <h1>Σκανάρισε την κάρτα</h1>
-      <p>Πάτησε το κουμπί, βγάλε φωτογραφία της επαγγελματικής κάρτας και η εφαρμογή κάνει τα υπόλοιπα.</p>
-      <button class="big-btn" id="scanBtn">
-        <span class="cam">📷</span> Σκανάρισμα κάρτας
+      <h1 class="scan-title">Σκάναρε την κάρτα</h1>
+      <p class="scan-sub">Πάτα το κουμπί και τράβα φωτογραφία της επαγγελματικής κάρτας</p>
+      <button class="scan-btn" id="scanBtn">
+        📷 Άνοιγμα κάμερας
       </button>
-      <div class="hint">Θα ανοίξει η κάμερα του κινητού σου</div>
-    </div>
-    <input type="file" id="cam" accept="image/*" capture="environment" hidden>
-  </section>
+      <input type="file" id="camInput" class="file-hidden" accept="image/*" capture="environment">
+    </section>
 
-  <!-- 2) READING -->
-  <section id="reading" class="screen">
-    <img id="thumb" class="thumb" alt="η κάρτα" />
-    <div class="spinner"></div>
-    <h2>Διαβάζω την κάρτα…</h2>
-    <p>Εντοπίζω όνομα, εταιρεία, τηλέφωνο και email</p>
-  </section>
+    <!-- ============ SCREEN 2: READING ============ -->
+    <section id="reading" class="screen">
+      <div class="spinner"></div>
+      <div>
+        <h2 class="reading-title">Διαβάζω την κάρτα...</h2>
+        <p class="reading-sub">Αυτό χρειάζεται μερικά δευτερόλεπτα. Την πρώτη φορά είναι λίγο πιο αργό.</p>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="progBar"></div>
+      </div>
+      <div class="progress-text" id="progText">Ξεκινώ...</div>
+    </section>
 
-  <!-- 3) FORM -->
-  <section id="form" class="screen">
-    <div class="demo-banner">⚙️ Δοκιμαστική έκδοση — τα στοιχεία είναι παράδειγμα. Μπορείς να τα αλλάξεις.</div>
-    <div class="form-head">
-      <h2>Έλεγξε τα στοιχεία</h2>
-      <div class="sub">Σύγκρινέ τα με την κάρτα στο χέρι σου πριν πατήσεις ΟΚ.</div>
-    </div>
+    <!-- ============ SCREEN 3: FORM ============ -->
+    <section id="form" class="screen">
+      <h2 class="form-title">Έλεγξε τα στοιχεία</h2>
+      <p class="form-sub">Σύγκρινέ τα με την κάρτα στο χέρι σου πριν πατήσεις OK.</p>
 
-    <div class="fields">
+      <div id="errBox" class="err" style="display:none"></div>
+
       <div class="field">
         <label>Υπεύθυνος (Όνομα)</label>
-        <div class="ip"><span class="ic">👤</span><input id="f_name" value="Γιώργος Παπαδόπουλος"></div>
+        <div class="input-wrap" id="wrap_name">
+          <span class="icon">👤</span>
+          <input type="text" id="f_name" placeholder="Όνομα και επώνυμο">
+        </div>
+        <div class="empty-hint">⚠️ Άδειο — γράψ' το χειροκίνητα από την κάρτα</div>
       </div>
+
       <div class="field">
         <label>Επωνυμία (Εταιρεία)</label>
-        <div class="ip"><span class="ic">🏢</span><input id="f_company" value="Tech Solutions ΕΠΕ"></div>
+        <div class="input-wrap" id="wrap_company">
+          <span class="icon">🏢</span>
+          <input type="text" id="f_company" placeholder="Όνομα εταιρείας">
+        </div>
+        <div class="empty-hint">⚠️ Άδειο — γράψ' το χειροκίνητα από την κάρτα</div>
       </div>
+
       <div class="field">
         <label>Τηλέφωνο</label>
-        <div class="ip"><span class="ic">📞</span><input id="f_phone" value="6944 123456"></div>
+        <div class="input-wrap" id="wrap_phone">
+          <span class="icon">📞</span>
+          <input type="tel" id="f_phone" placeholder="+30 69XX XXX XXX">
+        </div>
+        <div class="empty-hint">⚠️ Άδειο — γράψ' το χειροκίνητα από την κάρτα</div>
       </div>
+
       <div class="field">
         <label>Email</label>
-        <div class="ip"><span class="ic">✉️</span><input id="f_email" value="gpapadopoulos@techsolutions.gr"></div>
+        <div class="input-wrap" id="wrap_email">
+          <span class="icon">✉️</span>
+          <input type="email" id="f_email" placeholder="name@company.gr">
+        </div>
+        <div class="empty-hint">⚠️ Άδειο — γράψ' το χειροκίνητα από την κάρτα</div>
       </div>
-    </div>
 
-    <div class="status-row">
-      <span class="dot"></span>
-      <div class="t"><b>Κατάσταση: Υποψήφιος</b><span>Θα μπει αυτόματα στη λίστα πελατών</span></div>
-    </div>
+      <div class="status-box">
+        <div class="status-dot"></div>
+        <div>
+          <div class="st1">Κατάσταση: Υποψήφιος</div>
+          <div class="st2">Θα μπει αυτόματα στη λίστα πελατών</div>
+        </div>
+      </div>
 
-    <div class="actions">
-      <button class="primary" id="okBtn">✓ Καταχώρηση Υποψηφίου</button>
-      <button class="ghost" id="cancelBtn">Ακύρωση</button>
-    </div>
-  </section>
+      <button class="raw-toggle" id="rawToggle">🔎 Δες τι ακριβώς διάβασε</button>
+      <pre class="raw-box" id="rawBox"></pre>
 
-  <!-- 4) DONE -->
-  <section id="done" class="screen">
-    <div class="check">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-    </div>
-    <h2>Καταχωρήθηκε! 🎉</h2>
-    <div class="who" id="doneName">Γιώργος Παπαδόπουλος</div>
-    <div class="receipt">
-      <div class="ln"><span class="e">🔵</span><div>Μπήκε στους πελάτες ως <b>Υποψήφιος</b></div></div>
-      <div class="ln"><span class="e">✉️</span><div>Στάλθηκε email καλωσορίσματος</div></div>
-      <div class="ln"><span class="e">🔔</span><div>Ειδοποιήθηκε ο υπεύθυνος</div></div>
-    </div>
-    <button class="big-btn" id="againBtn"><span class="cam">📷</span> Νέα κάρτα</button>
-  </section>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="okBtn">✓ Καταχώρηση Υποψηφίου</button>
+        <button class="btn btn-secondary" id="cancelBtn">Ακύρωση</button>
+      </div>
+    </section>
+
+    <!-- ============ SCREEN 4: DONE ============ -->
+    <section id="done" class="screen">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24"><polyline points="5,13 10,18 20,7"/></svg>
+      </div>
+      <h1 class="done-title">Καταχωρήθηκε! 🎉</h1>
+      <p class="done-name" id="doneName">—</p>
+      <div class="done-card">
+        <div class="done-item"><span class="icon">🔵</span><span class="text">Μπήκε στους πελάτες ως <span class="highlight">Υποψήφιος</span></span></div>
+        <div class="done-item"><span class="icon">✉️</span><span class="text">Στάλθηκε email καλωσορίσματος</span></div>
+        <div class="done-item"><span class="icon">🔔</span><span class="text">Ειδοποιήθηκε ο υπεύθυνος</span></div>
+      </div>
+      <button class="new-btn" id="newBtn">📷 Νέα κάρτα</button>
+    </section>
+  </main>
 
 </div>
 
+<!-- Tesseract.js — ο "βοηθός που διαβάζει την κάρτα" -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
+
 <script>
-  const show = id => {
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-    document.getElementById(id).classList.add('on');
-    window.scrollTo(0,0);
+'use strict';
+
+// ==================== HELPERS ====================
+const $ = id => document.getElementById(id);
+const screens = ['scan','reading','form','done'];
+function show(name){
+  screens.forEach(s => $(s).classList.toggle('active', s === name));
+  window.scrollTo(0,0);
+}
+
+// ==================== OCR PARSER ====================
+// Παίρνει το ακατέργαστο κείμενο από την κάρτα και βρίσκει: όνομα, εταιρεία, τηλέφωνο, email
+function parseCard(rawText){
+  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const joined = lines.join(' ');
+
+  // --- EMAIL ---
+  const emailMatch = joined.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  const email = emailMatch ? emailMatch[0].toLowerCase() : '';
+
+  // --- PHONE ---
+  // Ψάχνει: +30, 00306, ή ελληνικό τηλέφωνο (10 ψηφία, ξεκινά με 2 ή 6)
+  let phone = '';
+  const phonePatterns = [
+    /(?:\+?30[\s\-.]?)?(?:6\d{2}|2[1-9]\d)[\s\-.]?\d{3}[\s\-.]?\d{4}/,
+    /(?:\+?30[\s\-.]?)?(?:6\d{2}|2[1-9]\d)[\s\-.]?\d{6,7}/,
+    /\+\d{1,3}[\s\-.]?\d{2,4}[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/
+  ];
+  for(const pat of phonePatterns){
+    const m = joined.match(pat);
+    if(m){ phone = m[0].trim(); break; }
+  }
+
+  // --- NAME & COMPANY ---
+  // Αφαιρώ γραμμές που είναι email, τηλέφωνο, ή προφανώς διεύθυνση/website
+  const badLine = /(@|www\.|http|\+?30|\d{4,}|street|str\.|οδός|τκ|τ\.κ|p\.c|address|διεύθυνση)/i;
+  const cleanLines = lines.filter(l => !badLine.test(l) && l.length >= 2 && l.length <= 60);
+
+  // Εταιρικές ενδείξεις (ΑΕ, ΕΠΕ, ΟΕ, LTD, INC, SA, GmbH, κλπ)
+  const companyMark = /(\b(?:AE|A\.E\.|ΑΕ|Α\.Ε\.|EPE|Ε\.Π\.Ε|ΕΠΕ|OE|Ο\.Ε\.|ΟΕ|LTD|LIMITED|INC|SA|S\.A\.|GMBH|BV|CORP|CORPORATION|COMPANY|GROUP|SOLUTIONS|SERVICES|SYSTEMS|TECHNOLOGIES|CONSULTING|MANAGEMENT|INTERNATIONAL|HELLAS|EXPRESS|LOGISTICS|CO|CO\.)\b)/i;
+
+  // Τίτλος/θέση εργασίας (για να τους αγνοήσουμε από το όνομα)
+  const titleMark = /^(manager|director|ceo|cto|cfo|president|vice|head|chief|διευθυντ|υπεύθυν|πρόεδρ|business development|sales|marketing|engineer|consultant|advisor|owner|founder|partner)/i;
+
+  let name = '', company = '';
+
+  // Πρώτα: ψάχνω γραμμή με εταιρικό σήμα
+  for(const l of cleanLines){
+    if(companyMark.test(l)){ company = l; break; }
+  }
+
+  // Μετά: για όνομα, ψάχνω γραμμή που μοιάζει με όνομα ανθρώπου
+  // Χαρακτηριστικά: 2-4 λέξεις, όλες με κεφαλαίο αρχικό γράμμα, χωρίς σήματα εταιρείας
+  for(const l of cleanLines){
+    if(l === company) continue;
+    if(companyMark.test(l)) continue;
+    if(titleMark.test(l)) continue;
+    const words = l.split(/\s+/);
+    if(words.length < 2 || words.length > 4) continue;
+    // Κάθε λέξη να ξεκινά με κεφαλαίο (ελληνικό ή λατινικό)
+    const looksLikeName = words.every(w => /^[A-ZΑ-ΩΆΈΉΊΌΎΏ]/.test(w) && w.length >= 2);
+    if(looksLikeName){ name = l; break; }
+  }
+
+  // Fallback: αν δεν βρήκα εταιρεία, παίρνω την πρώτη γραμμή που δεν είναι το όνομα
+  if(!company){
+    for(const l of cleanLines){
+      if(l === name) continue;
+      if(titleMark.test(l)) continue;
+      if(l.length >= 3){ company = l; break; }
+    }
+  }
+
+  // Fallback: αν δεν βρήκα όνομα, παίρνω την πρώτη γραμμή
+  if(!name && cleanLines.length > 0){
+    for(const l of cleanLines){
+      if(l !== company){ name = l; break; }
+    }
+  }
+
+  return {
+    name: name.trim(),
+    company: company.trim(),
+    phone: phone.trim(),
+    email: email.trim()
   };
-  const cam = document.getElementById('cam');
-  document.getElementById('scanBtn').addEventListener('click', ()=> cam.click());
-  cam.addEventListener('change', e=>{
-    const file = e.target.files && e.target.files[0];
-    if(!file) return;
-    document.getElementById('thumb').src = URL.createObjectURL(file);
-    show('reading');
-    setTimeout(()=> show('form'), 1900);
+}
+
+// ==================== FIELD HELPERS ====================
+function setField(inputId, wrapId, value){
+  const inp = $(inputId), wrap = $(wrapId);
+  inp.value = value || '';
+  wrap.classList.toggle('empty', !value);
+}
+
+// Όταν ο χρήστης πληκτρολογεί, φεύγει το κόκκινο "άδειο"
+['f_name','f_company','f_phone','f_email'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    const wrap = $(id).closest('.input-wrap');
+    wrap.classList.toggle('empty', !$(id).value.trim());
   });
-  document.getElementById('okBtn').addEventListener('click', ()=>{
-    const name = document.getElementById('f_name').value || 'Ο πελάτης';
-    document.getElementById('doneName').textContent = name;
-    show('done');
-  });
-  document.getElementById('cancelBtn').addEventListener('click', ()=>{ cam.value=''; show('scan'); });
-  document.getElementById('againBtn').addEventListener('click', ()=>{ cam.value=''; show('scan'); });
+});
+
+// ==================== SCAN → OCR FLOW ====================
+$('scanBtn').addEventListener('click', () => $('camInput').click());
+
+$('camInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  e.target.value = ''; // reset so same file can be re-picked
+
+  show('reading');
+  $('progBar').style.width = '0%';
+  $('progText').textContent = 'Ξεκινώ...';
+
+  try {
+    const result = await Tesseract.recognize(file, 'ell+eng', {
+      logger: m => {
+        if(m.status === 'recognizing text'){
+          const pct = Math.round(m.progress * 100);
+          $('progBar').style.width = pct + '%';
+          $('progText').textContent = 'Διαβάζω τα γράμματα... ' + pct + '%';
+        } else if(m.status === 'loading tesseract core' || m.status === 'initializing tesseract'){
+          $('progText').textContent = 'Ξυπνάω τον βοηθό...';
+        } else if(m.status === 'loading language traineddata' || m.status === 'initializing api'){
+          $('progText').textContent = 'Φορτώνω ελληνικά + αγγλικά...';
+        }
+      }
+    });
+
+    const rawText = (result && result.data && result.data.text) || '';
+    const fields = parseCard(rawText);
+
+    setField('f_name','wrap_name', fields.name);
+    setField('f_company','wrap_company', fields.company);
+    setField('f_phone','wrap_phone', fields.phone);
+    setField('f_email','wrap_email', fields.email);
+
+    $('rawBox').textContent = rawText.trim() || '(δεν διάβασα κείμενο — δοκίμασε πιο καθαρή φωτογραφία)';
+    $('rawBox').classList.remove('show');
+    $('errBox').style.display = 'none';
+
+    show('form');
+  } catch(err){
+    console.error('OCR error:', err);
+    $('errBox').textContent = 'Κάτι πήγε στραβά με το διάβασμα. Δοκίμασε ξανά με πιο καθαρή φωτογραφία.';
+    $('errBox').style.display = 'block';
+    // Άδεια πεδία για χειροκίνητη συμπλήρωση
+    setField('f_name','wrap_name','');
+    setField('f_company','wrap_company','');
+    setField('f_phone','wrap_phone','');
+    setField('f_email','wrap_email','');
+    $('rawBox').textContent = '';
+    show('form');
+  }
+});
+
+// Toggle raw text
+$('rawToggle').addEventListener('click', () => {
+  $('rawBox').classList.toggle('show');
+});
+
+// ==================== SAVE / CANCEL ====================
+$('okBtn').addEventListener('click', () => {
+  const contact = {
+    name: $('f_name').value.trim(),
+    company: $('f_company').value.trim(),
+    phone: $('f_phone').value.trim(),
+    email: $('f_email').value.trim(),
+    status: 'Υποψήφιος',
+    createdAt: new Date().toISOString()
+  };
+
+  // Αποθήκευση τοπικά (μέχρι να συνδεθεί ο Απόστολος το backend)
+  try {
+    const list = JSON.parse(localStorage.getItem('cardScanner_contacts') || '[]');
+    list.push(contact);
+    localStorage.setItem('cardScanner_contacts', JSON.stringify(list));
+  } catch(err){
+    console.warn('LocalStorage save failed:', err);
+  }
+
+  $('doneName').textContent = contact.name || contact.company || 'Ο πελάτης';
+  show('done');
+});
+
+$('cancelBtn').addEventListener('click', () => show('scan'));
+$('newBtn').addEventListener('click', () => show('scan'));
+
+// ==================== START ====================
+show('scan');
 </script>
 </body>
 </html>
