@@ -230,62 +230,134 @@ function parseCard(rawText){
   const email = emailMatch ? emailMatch[0].toLowerCase() : '';
 
   // --- PHONE ---
-  // Ψάχνει: +30, 00306, ή ελληνικό τηλέφωνο (10 ψηφία, ξεκινά με 2 ή 6)
-  let phone = '';
-  const phonePatterns = [
-    /(?:\+?30[\s\-.]?)?(?:6\d{2}|2[1-9]\d)[\s\-.]?\d{3}[\s\-.]?\d{4}/,
-    /(?:\+?30[\s\-.]?)?(?:6\d{2}|2[1-9]\d)[\s\-.]?\d{6,7}/,
-    /\+\d{1,3}[\s\-.]?\d{2,4}[\s\-.]?\d{3,4}[\s\-.]?\d{3,4}/
-  ];
-  for(const pat of phonePatterns){
-    const m = joined.match(pat);
-    if(m){ phone = m[0].trim(); break; }
+  // Πιο ευέλικτη προσέγγιση:
+  // 1) Βρίσκω κάθε ακολουθία με ψηφία + διαχωριστικά (τελείες, παύλες, κενά)
+  // 2) Αφαιρώ ό,τι δεν είναι ψηφίο και ελέγχω αν είναι έγκυρο ελληνικό τηλέφωνο
+  //    (10 ψηφία που ξεκινούν με 2 = σταθερό, ή 6 = κινητό)
+  //    (12 ψηφία με πρόθεμα 30)
+  // 3) Προτιμώ κινητό (6xxx) αντί σταθερού
+  function classifyPhone(str) {
+    const digits = str.replace(/\D/g, '');
+    if(digits.length === 10 && /^6/.test(digits)) return { raw: str.trim(), priority: 1 }; // κινητό
+    if(digits.length === 10 && /^2/.test(digits)) return { raw: str.trim(), priority: 2 }; // σταθερό
+    if(digits.length === 12 && /^306/.test(digits)) return { raw: str.trim(), priority: 1 };
+    if(digits.length === 12 && /^302/.test(digits)) return { raw: str.trim(), priority: 2 };
+    return null;
   }
+
+  const foundPhones = [];
+  for(const line of lines) {
+    // Εξάγει ακολουθίες με ψηφία και διαχωριστικά (τουλάχιστον 9 χαρακτήρες)
+    const matches = line.match(/[\+\d][\d\s\-\.\(\)\/]{7,}\d/g) || [];
+    for(const m of matches) {
+      const p = classifyPhone(m);
+      if(p) foundPhones.push(p);
+    }
+  }
+  // Ταξινομώ κατά προτεραιότητα (κινητό πρώτο)
+  foundPhones.sort((a, b) => a.priority - b.priority);
+  const phone = foundPhones.length ? foundPhones[0].raw : '';
 
   // --- NAME & COMPANY ---
-  // Αφαιρώ γραμμές που είναι email, τηλέφωνο, ή προφανώς διεύθυνση/website
-  const badLine = /(@|www\.|http|\+?30|\d{4,}|street|str\.|οδός|τκ|τ\.κ|p\.c|address|διεύθυνση)/i;
-  const cleanLines = lines.filter(l => !badLine.test(l) && l.length >= 2 && l.length <= 60);
 
-  // Εταιρικές ενδείξεις (ΑΕ, ΕΠΕ, ΟΕ, LTD, INC, SA, GmbH, κλπ)
-  const companyMark = /(\b(?:AE|A\.E\.|ΑΕ|Α\.Ε\.|EPE|Ε\.Π\.Ε|ΕΠΕ|OE|Ο\.Ε\.|ΟΕ|LTD|LIMITED|INC|SA|S\.A\.|GMBH|BV|CORP|CORPORATION|COMPANY|GROUP|SOLUTIONS|SERVICES|SYSTEMS|TECHNOLOGIES|CONSULTING|MANAGEMENT|INTERNATIONAL|HELLAS|EXPRESS|LOGISTICS|CO|CO\.)\b)/i;
+  // Ταμπέλες που ΔΕΝ είναι όνομα προσώπου (τις αγνοούμε)
+  const nonNameLabels = /^(?:επίσημος\s+συνεργάτης|επίσημος\s+διανομέας|official\s+partner|authorized\s+(?:dealer|reseller|partner)|premium\s+partner|gold\s+partner|silver\s+partner|platinum\s+partner|certified\s+partner|value\s+added\s+reseller|επίσημος\s+αντιπρόσωπος)\s*$/i;
 
-  // Τίτλος/θέση εργασίας (για να τους αγνοήσουμε από το όνομα)
-  const titleMark = /^(manager|director|ceo|cto|cfo|president|vice|head|chief|διευθυντ|υπεύθυν|πρόεδρ|business development|sales|marketing|engineer|consultant|advisor|owner|founder|partner)/i;
+  // Γραμμές που είναι διεύθυνση, ΑΦΜ, ΓΕΜΗ, email, website, τηλέφωνο, κλπ
+  const badLine = /(@|www\.|http|street|str\.|\bοδός\b|\bτκ\b|\bτ\.κ|\bλεωφ|\bγε\.?μη|\bα\.?φ\.?μ|vat|p\.o\.\s?box|p\.c\.|address|διεύθυνση|\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο)\b|\d{3}\s?\d{2}\s+[Α-Ωα-ω])/i;
+
+  const cleanLines = lines.filter(l =>
+    !badLine.test(l) &&
+    l.length >= 2 &&
+    l.length <= 80 &&
+    !nonNameLabels.test(l.trim())
+  );
+
+  // Εταιρικές ενδείξεις (χρησιμοποιούνται και για ανίχνευση ΚΑΙ για καθάρισμα σκουπιδιών μετά)
+  const companyMarkers = [
+    'SERVICES','SOLUTIONS','SYSTEMS','TECHNOLOGIES','CONSULTING','EXPRESS','LOGISTICS',
+    'GROUP','MANAGEMENT','INTERNATIONAL','HELLAS','SOFTWARE','QUALITY','MEDIA','DIGITAL',
+    'FINANCE','INSURANCE','TRAVEL','INDUSTRIES','MARKETING','TRADING','WORLDWIDE',
+    'ΑΕ','Α.Ε.','ΕΠΕ','Ε.Π.Ε','ΟΕ','Ο.Ε.','ΙΚΕ','Ι.Κ.Ε',
+    'A.E.','AE','EPE','LTD','LIMITED','INC','SA','S.A.','GMBH','BV','CORP','COMPANY','CO.'
+  ];
+  const companyMarkerRegex = new RegExp(
+    '\\b(?:' + companyMarkers.map(m => m.replace(/\./g, '\\.')).join('|') + ')\\b',
+    'i'
+  );
+
+  // Τίτλοι/θέσεις εργασίας (για να τους αγνοούμε ως όνομα)
+  const titleMark = /^(?:manager|director|ceo|cto|cfo|coo|president|vice|head|chief|διευθυντ|υπεύθυν|πρόεδρ|business\s+development|sales|marketing|engineer|consultant|advisor|owner|founder|partner|supervisor|specialist|coordinator|executive|assistant|account|senior|junior|lead|principal|direct)/i;
+
+  // Έλεγχος αν μια γραμμή μοιάζει με όνομα προσώπου
+  function isNameLike(l) {
+    const trimmed = l.trim();
+    if(nonNameLabels.test(trimmed)) return false;
+    if(titleMark.test(trimmed)) return false;
+    if(companyMarkerRegex.test(trimmed)) return false;
+    if(/@|www|http|\d{3,}/.test(trimmed)) return false;
+    const words = trimmed.split(/\s+/);
+    if(words.length < 2 || words.length > 4) return false;
+    // Κάθε λέξη τουλάχιστον 2 χαρακτήρες
+    if(!words.every(w => w.length >= 2)) return false;
+    // Κάθε λέξη ξεκινά με γράμμα (Ελληνικό ή Λατινικό)
+    if(!words.every(w => /^[a-zA-ZΑ-Ωα-ωΆ-Ώά-ώΪΫϊϋΐΰ]/.test(w))) return false;
+    // Τουλάχιστον μία λέξη να ξεκινά με κεφαλαίο (τα ονόματα συνήθως κεφαλαιοποιούνται)
+    const upperCount = words.filter(w => /^[A-ZΑ-ΩΆΈΉΊΌΎΏ]/.test(w)).length;
+    if(upperCount === 0) return false;
+    return true;
+  }
 
   let name = '', company = '';
+  let companyLineIdx = -1;
 
-  // Πρώτα: ψάχνω γραμμή με εταιρικό σήμα
-  for(const l of cleanLines){
-    if(companyMark.test(l)){ company = l; break; }
-  }
-
-  // Μετά: για όνομα, ψάχνω γραμμή που μοιάζει με όνομα ανθρώπου
-  // Χαρακτηριστικά: 2-4 λέξεις, όλες με κεφαλαίο αρχικό γράμμα, χωρίς σήματα εταιρείας
-  for(const l of cleanLines){
-    if(l === company) continue;
-    if(companyMark.test(l)) continue;
-    if(titleMark.test(l)) continue;
-    const words = l.split(/\s+/);
-    if(words.length < 2 || words.length > 4) continue;
-    // Κάθε λέξη να ξεκινά με κεφαλαίο (ελληνικό ή λατινικό)
-    const looksLikeName = words.every(w => /^[A-ZΑ-ΩΆΈΉΊΌΎΏ]/.test(w) && w.length >= 2);
-    if(looksLikeName){ name = l; break; }
-  }
-
-  // Fallback: αν δεν βρήκα εταιρεία, παίρνω την πρώτη γραμμή που δεν είναι το όνομα
-  if(!company){
-    for(const l of cleanLines){
-      if(l === name) continue;
-      if(titleMark.test(l)) continue;
-      if(l.length >= 3){ company = l; break; }
+  // Βρίσκω γραμμή εταιρείας — παίρνω την ΠΡΩΤΗ γραμμή με εταιρικό σήμα
+  // και ΚΑΘΑΡΙΖΩ τα σκουπίδια μετά (π.χ. "crm quality services HOG 2uvepy" → "crm quality services")
+  for(let i = 0; i < cleanLines.length; i++) {
+    const line = cleanLines[i];
+    if(companyMarkerRegex.test(line)) {
+      // Βρίσκω το τελευταίο σήμα και κόβω μετά από αυτό
+      const upperLine = line.toUpperCase();
+      let bestEnd = 0;
+      for(const marker of companyMarkers) {
+        const idx = upperLine.lastIndexOf(marker);
+        if(idx > -1) {
+          const end = idx + marker.length;
+          if(end > bestEnd) bestEnd = end;
+        }
+      }
+      company = bestEnd > 0 ? line.substring(0, bestEnd).trim() : line.trim();
+      companyLineIdx = i;
+      break;
     }
   }
 
-  // Fallback: αν δεν βρήκα όνομα, παίρνω την πρώτη γραμμή
-  if(!name && cleanLines.length > 0){
-    for(const l of cleanLines){
-      if(l !== company){ name = l; break; }
+  // Βρίσκω όνομα — την ΠΡΩΤΗ γραμμή που μοιάζει με όνομα προσώπου
+  for(let i = 0; i < cleanLines.length; i++) {
+    if(i === companyLineIdx) continue;
+    if(isNameLike(cleanLines[i])) {
+      name = cleanLines[i].trim();
+      break;
+    }
+  }
+
+  // Fallback εταιρείας: αν δεν βρήκα, παίρνω πρώτη γραμμή που δεν είναι όνομα/τίτλος
+  if(!company) {
+    for(let i = 0; i < cleanLines.length; i++) {
+      const l = cleanLines[i];
+      if(l.trim() === name) continue;
+      if(titleMark.test(l)) continue;
+      if(isNameLike(l)) continue;
+      if(l.length >= 3) { company = l.trim(); break; }
+    }
+  }
+
+  // Fallback ονόματος: αν δεν βρήκα, παίρνω πρώτη μη-κενή γραμμή που δεν είναι εταιρεία
+  if(!name) {
+    for(const l of cleanLines) {
+      if(l.trim() === company) continue;
+      if(titleMark.test(l)) continue;
+      if(l.length >= 3) { name = l.trim(); break; }
     }
   }
 
