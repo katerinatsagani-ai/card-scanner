@@ -412,11 +412,16 @@ function parseCard(rawText){
   // --- PHONE ---
   function classifyPhone(str) {
     const digits = str.replace(/\D/g, '');
-    if(digits.length === 10 && /^6/.test(digits)) return { raw: str.trim(), priority: 1 };
-    if(digits.length === 10 && /^2/.test(digits)) return { raw: str.trim(), priority: 2 };
-    if(digits.length === 12 && /^306/.test(digits)) return { raw: str.trim(), priority: 1 };
-    if(digits.length === 12 && /^302/.test(digits)) return { raw: str.trim(), priority: 2 };
+    if(digits.length === 10 && /^6/.test(digits)) return { digits, priority: 1 };
+    if(digits.length === 10 && /^2/.test(digits)) return { digits, priority: 2 };
+    if(digits.length === 12 && /^306/.test(digits)) return { digits: digits.substring(2), priority: 1 };
+    if(digits.length === 12 && /^302/.test(digits)) return { digits: digits.substring(2), priority: 2 };
     return null;
+  }
+  // Μορφοποίηση: 6936030211 → "+30 693 60 30 211"
+  function formatGreekPhone(tenDigits) {
+    if(tenDigits.length !== 10) return tenDigits;
+    return '+30 ' + tenDigits.substring(0,3) + ' ' + tenDigits.substring(3,5) + ' ' + tenDigits.substring(5,7) + ' ' + tenDigits.substring(7,10);
   }
   const foundPhones = [];
   for(const line of lines) {
@@ -427,7 +432,7 @@ function parseCard(rawText){
     }
   }
   foundPhones.sort((a, b) => a.priority - b.priority);
-  const phone = foundPhones.length ? foundPhones[0].raw : '';
+  const phone = foundPhones.length ? formatGreekPhone(foundPhones[0].digits) : '';
 
   // --- ΑΦΜ (VAT number) ---
   // 9-ψήφιος αριθμός συνήθως με λέξεις "ΑΦΜ", "VAT", "Α.Φ.Μ."
