@@ -7,24 +7,24 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23c8102e'/%3E%3Ctext x='50' y='68' font-family='Arial Black,sans-serif' font-size='55' font-weight='900' fill='white' text-anchor='middle'%3E4A%3C/text%3E%3C/svg%3E">
 <meta name="theme-color" content="#c8102e">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Σκάνερ 4A">
 <style>
   *,*::before,*::after{box-sizing:border-box}
-  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f2f4f7;color:#1a2340;-webkit-tap-highlight-color:transparent}
-  body{min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  .app{max-width:640px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
-  header{background:white;padding:14px 18px;border-bottom:1px solid #e5e8ee;display:flex;align-items:center;gap:12px}
+  html,body{margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:#f2f4f7;color:#1a2340;-webkit-tap-highlight-color:transparent;overscroll-behavior:none}
+  body{min-height:100vh;min-height:100dvh}
+  .app{max-width:640px;margin:0 auto;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  header{background:white;padding:14px 18px;border-bottom:1px solid #e5e8ee;display:flex;align-items:center;gap:12px;flex-shrink:0}
   .logo{width:46px;height:46px;background:#c8102e;border:2px solid #1a2340;display:flex;align-items:center;justify-content:center;font-family:"Arial Black",sans-serif;font-weight:900;color:white;font-size:20px;letter-spacing:-1px;flex-shrink:0}
   .logo-text{line-height:1.15}
   .logo-text .t1{font-size:17px;font-weight:700;color:#1a2340;letter-spacing:.2px}
   .logo-text .t2{font-size:10px;color:#7a8194;letter-spacing:1.5px;font-weight:600}
-  main{flex:1;padding:18px;display:flex;flex-direction:column}
+  main{flex:1;padding:18px;display:flex;flex-direction:column;min-height:0}
   .screen{display:none;flex:1;flex-direction:column;animation:fade .25s ease-out}
   .screen.active{display:flex}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-  /* ===== SCAN SCREEN ===== */
+  /* ===== SCAN START SCREEN ===== */
   #scan{align-items:center;justify-content:center;text-align:center;gap:22px;padding:20px 0}
   .scan-icon{width:140px;height:140px;border-radius:50%;background:linear-gradient(135deg,#c8102e,#a30d24);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(200,16,46,.28);margin-bottom:6px}
   .scan-icon svg{width:70px;height:70px;fill:white}
@@ -32,7 +32,36 @@
   .scan-sub{font-size:15px;color:#5a6479;margin:0;max-width:280px;line-height:1.5}
   .scan-btn{background:#c8102e;color:white;border:none;padding:20px 40px;font-size:19px;font-weight:700;border-radius:14px;cursor:pointer;box-shadow:0 8px 20px rgba(200,16,46,.32);display:inline-flex;align-items:center;gap:12px;transition:transform .1s}
   .scan-btn:active{transform:scale(.97)}
-  .file-hidden{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+  /* ===== LIVE CAMERA SCREEN ===== */
+  #camera{display:none;position:fixed;inset:0;background:#000;z-index:100;flex-direction:column}
+  #camera.active{display:flex}
+  .camera-video-wrap{flex:1;position:relative;overflow:hidden;background:#000}
+  #videoEl{width:100%;height:100%;object-fit:cover;display:block}
+  /* Σκοτεινό overlay με "τρύπα" όπου είναι το πλαίσιο */
+  .frame-overlay{position:absolute;inset:0;pointer-events:none;
+    background:
+      linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) top/100% calc(50% - 100px) no-repeat,
+      linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) bottom/100% calc(50% - 100px) no-repeat,
+      linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) left top calc(50% - 100px)/8% 200px no-repeat,
+      linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)) right top calc(50% - 100px)/8% 200px no-repeat;
+  }
+  .frame-box{position:absolute;top:50%;left:50%;width:84%;max-width:400px;aspect-ratio:1.6/1;transform:translate(-50%,-50%);border-radius:14px;pointer-events:none;box-shadow:0 0 0 9999px rgba(0,0,0,.55)}
+  .frame-corner{position:absolute;width:32px;height:32px;border:4px solid #ffd200}
+  .frame-corner.tl{top:-3px;left:-3px;border-right:none;border-bottom:none;border-top-left-radius:14px}
+  .frame-corner.tr{top:-3px;right:-3px;border-left:none;border-bottom:none;border-top-right-radius:14px}
+  .frame-corner.bl{bottom:-3px;left:-3px;border-right:none;border-top:none;border-bottom-left-radius:14px}
+  .frame-corner.br{bottom:-3px;right:-3px;border-left:none;border-top:none;border-bottom-right-radius:14px}
+  .camera-hint{position:absolute;top:calc(env(safe-area-inset-top) + 20px);left:50%;transform:translateX(-50%);color:white;font-size:15px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.8);text-align:center;padding:8px 16px;background:rgba(0,0,0,.45);border-radius:20px;pointer-events:none;white-space:nowrap}
+  .camera-controls{position:absolute;bottom:calc(env(safe-area-inset-bottom) + 30px);left:0;right:0;display:flex;justify-content:space-around;align-items:center;padding:0 30px}
+  .cam-btn{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:99px;padding:12px 20px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .cam-btn:active{background:rgba(255,255,255,.3)}
+  .capture-btn{width:78px;height:78px;border-radius:50%;background:white;border:5px solid rgba(255,255,255,.35);cursor:pointer;padding:0;flex-shrink:0;transition:transform .1s;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+  .capture-btn:active{transform:scale(.92)}
+  .capture-btn::before{content:'';display:block;width:60px;height:60px;border-radius:50%;background:white;border:3px solid #1a2340;margin:4px}
+  .cam-err{position:absolute;top:50%;left:20px;right:20px;transform:translateY(-50%);background:#fff;padding:24px;border-radius:14px;text-align:center;color:#1a2340;display:none}
+  .cam-err.show{display:block}
+  .cam-err h3{margin:0 0 10px;color:#c8102e}
 
   /* ===== READING SCREEN ===== */
   #reading{align-items:center;justify-content:center;gap:28px;text-align:center}
@@ -49,6 +78,7 @@
   .form-sub{font-size:14px;color:#5a6479;margin:0 0 20px}
   .field{margin-bottom:16px}
   .field label{display:block;font-size:13px;font-weight:600;color:#5a6479;margin-bottom:6px;padding-left:2px}
+  .field label .optional{font-weight:400;color:#a0a7b8;font-size:12px;margin-left:6px}
   .input-wrap{background:white;border:2px solid #e5e8ee;border-radius:12px;display:flex;align-items:center;padding:0 14px;transition:border-color .15s}
   .input-wrap:focus-within{border-color:#c8102e}
   .input-wrap.empty{border-color:#ffb3b3;background:#fff5f5}
@@ -85,7 +115,6 @@
   .new-btn{background:#c8102e;color:white;border:none;padding:20px;font-size:19px;font-weight:700;border-radius:14px;cursor:pointer;box-shadow:0 8px 20px rgba(200,16,46,.32);width:100%;max-width:340px;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:10px}
   .new-btn:active{transform:scale(.98)}
 
-  /* Error banner */
   .err{background:#fff5f5;border:1px solid #ffb3b3;color:#c8102e;padding:12px 14px;border-radius:10px;font-size:14px;margin-bottom:14px}
 </style>
 </head>
@@ -101,17 +130,16 @@
   </header>
 
   <main>
-    <!-- ============ SCREEN 1: SCAN ============ -->
+    <!-- ============ SCREEN 1: START ============ -->
     <section id="scan" class="screen active">
       <div class="scan-icon">
         <svg viewBox="0 0 24 24"><path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.65 0-3 1.35-3 3s1.35 3 3 3 3-1.35 3-3-1.35-3-3-3z"/></svg>
       </div>
       <h1 class="scan-title">Σκάναρε την κάρτα</h1>
-      <p class="scan-sub">Πάτα το κουμπί και τράβα φωτογραφία της επαγγελματικής κάρτας</p>
+      <p class="scan-sub">Θα ανοίξει η κάμερα με πλαίσιο — βάλε την κάρτα μέσα στο πλαίσιο</p>
       <button class="scan-btn" id="scanBtn">
         📷 Άνοιγμα κάμερας
       </button>
-      <input type="file" id="camInput" class="file-hidden" accept="image/*" capture="environment">
     </section>
 
     <!-- ============ SCREEN 2: READING ============ -->
@@ -150,6 +178,22 @@
           <input type="text" id="f_company" placeholder="Όνομα εταιρείας">
         </div>
         <div class="empty-hint">⚠️ Άδειο — γράψ' το χειροκίνητα από την κάρτα</div>
+      </div>
+
+      <div class="field">
+        <label>ΑΦΜ Εταιρείας <span class="optional">(συμπλήρωσέ το εσύ)</span></label>
+        <div class="input-wrap" id="wrap_afm">
+          <span class="icon">🔢</span>
+          <input type="text" id="f_afm" placeholder="π.χ. 123456789" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Διεύθυνση Εταιρείας <span class="optional">(συμπλήρωσέ το εσύ)</span></label>
+        <div class="input-wrap" id="wrap_address">
+          <span class="icon">🏠</span>
+          <input type="text" id="f_address" placeholder="Οδός, αριθμός, πόλη, ΤΚ">
+        </div>
       </div>
 
       <div class="field">
@@ -205,13 +249,37 @@
 
 </div>
 
-<!-- Tesseract.js — ο "βοηθός που διαβάζει την κάρτα" -->
+<!-- ============ LIVE CAMERA OVERLAY ============ -->
+<div id="camera">
+  <div class="camera-video-wrap">
+    <video id="videoEl" autoplay playsinline muted></video>
+    <div class="frame-box">
+      <div class="frame-corner tl"></div>
+      <div class="frame-corner tr"></div>
+      <div class="frame-corner bl"></div>
+      <div class="frame-corner br"></div>
+    </div>
+    <div class="camera-hint">Τοποθέτησε την κάρτα μέσα στο πλαίσιο</div>
+    <div class="cam-err" id="camErr">
+      <h3>Δεν έχω πρόσβαση στην κάμερα</h3>
+      <p id="camErrMsg">Δώσε άδεια στον browser να χρησιμοποιήσει την κάμερα και δοκίμασε ξανά.</p>
+      <button class="btn btn-secondary" id="camErrBack" style="margin-top:10px">Πίσω</button>
+    </div>
+  </div>
+  <div class="camera-controls">
+    <button class="cam-btn" id="cancelCamBtn">Ακύρωση</button>
+    <button class="capture-btn" id="captureBtn" aria-label="Λήψη"></button>
+    <button class="cam-btn" id="focusHintBtn">👆 Εστίαση</button>
+  </div>
+</div>
+
+<canvas id="captureCanvas" style="display:none"></canvas>
+
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
 
 <script>
 'use strict';
 
-// ==================== HELPERS ====================
 const $ = id => document.getElementById(id);
 const screens = ['scan','reading','form','done'];
 function show(name){
@@ -219,8 +287,120 @@ function show(name){
   window.scrollTo(0,0);
 }
 
+// ==================== LIVE CAMERA ====================
+let videoStream = null;
+const video = $('videoEl');
+
+async function openCamera() {
+  $('camera').classList.add('active');
+  $('camErr').classList.remove('show');
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: { ideal: 'environment' },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    });
+    video.srcObject = videoStream;
+    await video.play();
+    // Προσπάθεια συνεχούς αυτόματης εστίασης (όπου υποστηρίζεται)
+    try {
+      const track = videoStream.getVideoTracks()[0];
+      const caps = track.getCapabilities ? track.getCapabilities() : {};
+      if(caps.focusMode && caps.focusMode.includes('continuous')) {
+        await track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+      }
+    } catch(e){ /* ignore */ }
+  } catch(err) {
+    console.error('Camera error:', err);
+    $('camErrMsg').textContent =
+      err.name === 'NotAllowedError'
+        ? 'Δεν έδωσες άδεια για την κάμερα. Πήγαινε στις ρυθμίσεις του browser και επίτρεψέ την.'
+        : 'Δεν μπόρεσα να ανοίξω την κάμερα: ' + (err.message || err.name);
+    $('camErr').classList.add('show');
+  }
+}
+
+function closeCamera() {
+  if(videoStream) {
+    videoStream.getTracks().forEach(t => t.stop());
+    videoStream = null;
+  }
+  video.srcObject = null;
+  $('camera').classList.remove('active');
+}
+
+// Tap-to-focus (όπου υποστηρίζεται)
+video.addEventListener('click', async (ev) => {
+  if(!videoStream) return;
+  try {
+    const track = videoStream.getVideoTracks()[0];
+    const caps = track.getCapabilities ? track.getCapabilities() : {};
+    if(caps.focusMode && caps.focusMode.includes('single-shot')) {
+      await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
+    } else if(caps.focusMode && caps.focusMode.includes('manual')) {
+      await track.applyConstraints({ advanced: [{ focusMode: 'manual' }] });
+    }
+  } catch(e){ /* ignore */ }
+});
+
+// ==================== CAPTURE + CROP ====================
+// Παίρνει καρέ από το video, κόβει την περιοχή του πλαισίου, και επιστρέφει canvas με μόνο εκείνη
+function captureCroppedFrame() {
+  const canvas = $('captureCanvas');
+  const vw = video.videoWidth;
+  const vh = video.videoHeight;
+  if(!vw || !vh) return null;
+
+  // Το frame-box στην οθόνη έχει aspect ratio 1.6:1 και πλάτος ~84% της οθόνης (max 400px)
+  // Πρέπει να βρούμε την αντίστοιχη περιοχή στο ΠΡΑΓΜΑΤΙΚΟ καρέ του video
+  // (το video έχει object-fit: cover, οπότε γεμίζει την οθόνη κόβοντας τις άκρες)
+
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  const boxW_screen = Math.min(screenW * 0.84, 400);
+  const boxH_screen = boxW_screen / 1.6;
+
+  // Πώς κόβει το object-fit: cover το video στην οθόνη
+  const videoAspect = vw / vh;
+  const screenAspect = screenW / screenH;
+  let scale, offsetX = 0, offsetY = 0;
+  if(videoAspect > screenAspect) {
+    // video πιο φαρδύ από οθόνη → κόβεται δεξιά-αριστερά
+    scale = screenH / vh;
+    offsetX = (vw * scale - screenW) / 2;
+  } else {
+    // video πιο ψηλό από οθόνη → κόβεται πάνω-κάτω
+    scale = screenW / vw;
+    offsetY = (vh * scale - screenH) / 2;
+  }
+
+  // Θέση πλαισίου στο ΚΕΝΤΡΟ της οθόνης
+  const boxLeft_screen = (screenW - boxW_screen) / 2;
+  const boxTop_screen = (screenH - boxH_screen) / 2;
+
+  // Μετατροπή σε συντεταγμένες του video
+  const cropX = (boxLeft_screen + offsetX) / scale;
+  const cropY = (boxTop_screen + offsetY) / scale;
+  const cropW = boxW_screen / scale;
+  const cropH = boxH_screen / scale;
+
+  // Θέλουμε το τελικό canvas να έχει καλή ανάλυση για OCR
+  // Κάνουμε upscale x2 αν είναι μικρό (βοηθάει το Tesseract)
+  const outputScale = cropW < 800 ? 2 : 1;
+  canvas.width = cropW * outputScale;
+  canvas.height = cropH * outputScale;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+
+  return canvas;
+}
+
 // ==================== OCR PARSER ====================
-// Παίρνει το ακατέργαστο κείμενο από την κάρτα και βρίσκει: όνομα, εταιρεία, τηλέφωνο, email
 function parseCard(rawText){
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const joined = lines.join(' ');
@@ -230,40 +410,62 @@ function parseCard(rawText){
   const email = emailMatch ? emailMatch[0].toLowerCase() : '';
 
   // --- PHONE ---
-  // Πιο ευέλικτη προσέγγιση:
-  // 1) Βρίσκω κάθε ακολουθία με ψηφία + διαχωριστικά (τελείες, παύλες, κενά)
-  // 2) Αφαιρώ ό,τι δεν είναι ψηφίο και ελέγχω αν είναι έγκυρο ελληνικό τηλέφωνο
-  //    (10 ψηφία που ξεκινούν με 2 = σταθερό, ή 6 = κινητό)
-  //    (12 ψηφία με πρόθεμα 30)
-  // 3) Προτιμώ κινητό (6xxx) αντί σταθερού
   function classifyPhone(str) {
     const digits = str.replace(/\D/g, '');
-    if(digits.length === 10 && /^6/.test(digits)) return { raw: str.trim(), priority: 1 }; // κινητό
-    if(digits.length === 10 && /^2/.test(digits)) return { raw: str.trim(), priority: 2 }; // σταθερό
+    if(digits.length === 10 && /^6/.test(digits)) return { raw: str.trim(), priority: 1 };
+    if(digits.length === 10 && /^2/.test(digits)) return { raw: str.trim(), priority: 2 };
     if(digits.length === 12 && /^306/.test(digits)) return { raw: str.trim(), priority: 1 };
     if(digits.length === 12 && /^302/.test(digits)) return { raw: str.trim(), priority: 2 };
     return null;
   }
-
   const foundPhones = [];
   for(const line of lines) {
-    // Εξάγει ακολουθίες με ψηφία και διαχωριστικά (τουλάχιστον 9 χαρακτήρες)
     const matches = line.match(/[\+\d][\d\s\-\.\(\)\/]{7,}\d/g) || [];
     for(const m of matches) {
       const p = classifyPhone(m);
       if(p) foundPhones.push(p);
     }
   }
-  // Ταξινομώ κατά προτεραιότητα (κινητό πρώτο)
   foundPhones.sort((a, b) => a.priority - b.priority);
   const phone = foundPhones.length ? foundPhones[0].raw : '';
 
-  // --- NAME & COMPANY ---
+  // --- ΑΦΜ (VAT number) ---
+  // 9-ψήφιος αριθμός συνήθως με λέξεις "ΑΦΜ", "VAT", "Α.Φ.Μ."
+  let afm = '';
+  const afmLine = lines.find(l => /(?:α\.?φ\.?μ|vat|tax\s*(?:id|no))/i.test(l));
+  if(afmLine){
+    const m = afmLine.match(/\b(\d{9})\b/);
+    if(m) afm = m[1];
+  }
+  // Fallback: αναζήτηση αυτόνομου 9ψήφιου αριθμού
+  if(!afm){
+    for(const l of lines){
+      // Αγνόησε γραμμές τηλεφώνων ή ΓΕΜΗ
+      if(/(?:τηλ|phone|tel|κιν|mob|γε\.?μη|ge\.?mh)/i.test(l)) continue;
+      const m = l.match(/(?<!\d)(\d{9})(?!\d)/);
+      if(m){ afm = m[1]; break; }
+    }
+  }
 
-  // Ταμπέλες που ΔΕΝ είναι όνομα προσώπου (τις αγνοούμε)
+  // --- ADDRESS ---
+  // Ψάχνει γραμμή με στοιχεία διεύθυνσης: αριθμός + πόλη ή ΤΚ ή γνωστές λέξεις
+  let address = '';
+  for(const l of lines){
+    if(/@|www\.|http/.test(l)) continue;
+    // Χαρακτηριστικά διεύθυνσης: αριθμός οδού + ΤΚ 5 ψηφίων ή πόλη
+    const hasStreetNumber = /\b\d{1,4}\b/.test(l);
+    const hasPostcode = /\b\d{3}\s?\d{2}\b/.test(l);
+    const hasStreetWord = /(?:οδός|λεωφ|street|str\.|ave|avenue|road|rd\.)/i.test(l);
+    const hasCity = /\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο|λάρισα|βόλος|ιωάννινα|χανιά|νέα\s+ιωνία|πειραι|athens|thessaloniki)\b/i.test(l);
+    if((hasStreetNumber && hasCity) || hasPostcode || (hasStreetWord && hasStreetNumber)){
+      address = l.trim();
+      break;
+    }
+  }
+
+  // --- NAME & COMPANY ---
   const nonNameLabels = /^(?:επίσημος\s+συνεργάτης|επίσημος\s+διανομέας|official\s+partner|authorized\s+(?:dealer|reseller|partner)|premium\s+partner|gold\s+partner|silver\s+partner|platinum\s+partner|certified\s+partner|value\s+added\s+reseller|επίσημος\s+αντιπρόσωπος)\s*$/i;
 
-  // Γραμμές που είναι διεύθυνση, ΑΦΜ, ΓΕΜΗ, email, website, τηλέφωνο, κλπ
   const badLine = /(@|www\.|http|street|str\.|\bοδός\b|\bτκ\b|\bτ\.κ|\bλεωφ|\bγε\.?μη|\bα\.?φ\.?μ|vat|p\.o\.\s?box|p\.c\.|address|διεύθυνση|\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο)\b|\d{3}\s?\d{2}\s+[Α-Ωα-ω])/i;
 
   const cleanLines = lines.filter(l =>
@@ -273,7 +475,6 @@ function parseCard(rawText){
     !nonNameLabels.test(l.trim())
   );
 
-  // Εταιρικές ενδείξεις (χρησιμοποιούνται και για ανίχνευση ΚΑΙ για καθάρισμα σκουπιδιών μετά)
   const companyMarkers = [
     'SERVICES','SOLUTIONS','SYSTEMS','TECHNOLOGIES','CONSULTING','EXPRESS','LOGISTICS',
     'GROUP','MANAGEMENT','INTERNATIONAL','HELLAS','SOFTWARE','QUALITY','MEDIA','DIGITAL',
@@ -286,10 +487,8 @@ function parseCard(rawText){
     'i'
   );
 
-  // Τίτλοι/θέσεις εργασίας (για να τους αγνοούμε ως όνομα)
   const titleMark = /^(?:manager|director|ceo|cto|cfo|coo|president|vice|head|chief|διευθυντ|υπεύθυν|πρόεδρ|business\s+development|sales|marketing|engineer|consultant|advisor|owner|founder|partner|supervisor|specialist|coordinator|executive|assistant|account|senior|junior|lead|principal|direct)/i;
 
-  // Έλεγχος αν μια γραμμή μοιάζει με όνομα προσώπου
   function isNameLike(l) {
     const trimmed = l.trim();
     if(nonNameLabels.test(trimmed)) return false;
@@ -298,11 +497,8 @@ function parseCard(rawText){
     if(/@|www|http|\d{3,}/.test(trimmed)) return false;
     const words = trimmed.split(/\s+/);
     if(words.length < 2 || words.length > 4) return false;
-    // Κάθε λέξη τουλάχιστον 2 χαρακτήρες
     if(!words.every(w => w.length >= 2)) return false;
-    // Κάθε λέξη ξεκινά με γράμμα (Ελληνικό ή Λατινικό)
     if(!words.every(w => /^[a-zA-ZΑ-Ωα-ωΆ-Ώά-ώΪΫϊϋΐΰ]/.test(w))) return false;
-    // Τουλάχιστον μία λέξη να ξεκινά με κεφαλαίο (τα ονόματα συνήθως κεφαλαιοποιούνται)
     const upperCount = words.filter(w => /^[A-ZΑ-ΩΆΈΉΊΌΎΏ]/.test(w)).length;
     if(upperCount === 0) return false;
     return true;
@@ -311,12 +507,9 @@ function parseCard(rawText){
   let name = '', company = '';
   let companyLineIdx = -1;
 
-  // Βρίσκω γραμμή εταιρείας — παίρνω την ΠΡΩΤΗ γραμμή με εταιρικό σήμα
-  // και ΚΑΘΑΡΙΖΩ τα σκουπίδια μετά (π.χ. "crm quality services HOG 2uvepy" → "crm quality services")
   for(let i = 0; i < cleanLines.length; i++) {
     const line = cleanLines[i];
     if(companyMarkerRegex.test(line)) {
-      // Βρίσκω το τελευταίο σήμα και κόβω μετά από αυτό
       const upperLine = line.toUpperCase();
       let bestEnd = 0;
       for(const marker of companyMarkers) {
@@ -332,7 +525,6 @@ function parseCard(rawText){
     }
   }
 
-  // Βρίσκω όνομα — την ΠΡΩΤΗ γραμμή που μοιάζει με όνομα προσώπου
   for(let i = 0; i < cleanLines.length; i++) {
     if(i === companyLineIdx) continue;
     if(isNameLike(cleanLines[i])) {
@@ -341,7 +533,6 @@ function parseCard(rawText){
     }
   }
 
-  // Fallback εταιρείας: αν δεν βρήκα, παίρνω πρώτη γραμμή που δεν είναι όνομα/τίτλος
   if(!company) {
     for(let i = 0; i < cleanLines.length; i++) {
       const l = cleanLines[i];
@@ -352,7 +543,6 @@ function parseCard(rawText){
     }
   }
 
-  // Fallback ονόματος: αν δεν βρήκα, παίρνω πρώτη μη-κενή γραμμή που δεν είναι εταιρεία
   if(!name) {
     for(const l of cleanLines) {
       if(l.trim() === company) continue;
@@ -365,18 +555,23 @@ function parseCard(rawText){
     name: name.trim(),
     company: company.trim(),
     phone: phone.trim(),
-    email: email.trim()
+    email: email.trim(),
+    afm: afm.trim(),
+    address: address.trim()
   };
 }
 
 // ==================== FIELD HELPERS ====================
-function setField(inputId, wrapId, value){
+function setField(inputId, wrapId, value, markEmptyIfBlank = true){
   const inp = $(inputId), wrap = $(wrapId);
   inp.value = value || '';
-  wrap.classList.toggle('empty', !value);
+  if(markEmptyIfBlank){
+    wrap.classList.toggle('empty', !value);
+  } else {
+    wrap.classList.remove('empty');
+  }
 }
 
-// Όταν ο χρήστης πληκτρολογεί, φεύγει το κόκκινο "άδειο"
 ['f_name','f_company','f_phone','f_email'].forEach(id => {
   $(id).addEventListener('input', () => {
     const wrap = $(id).closest('.input-wrap');
@@ -384,20 +579,32 @@ function setField(inputId, wrapId, value){
   });
 });
 
-// ==================== SCAN → OCR FLOW ====================
-$('scanBtn').addEventListener('click', () => $('camInput').click());
+// ==================== FLOW ====================
+$('scanBtn').addEventListener('click', openCamera);
+$('cancelCamBtn').addEventListener('click', () => { closeCamera(); show('scan'); });
+$('camErrBack').addEventListener('click', () => { closeCamera(); show('scan'); });
+$('focusHintBtn').addEventListener('click', () => {
+  // Απλή υπενθύμιση για tap-to-focus
+  const hint = $('focusHintBtn');
+  const orig = hint.textContent;
+  hint.textContent = '👆 Πάτα την κάρτα';
+  setTimeout(() => { hint.textContent = orig; }, 2000);
+});
 
-$('camInput').addEventListener('change', async (e) => {
-  const file = e.target.files && e.target.files[0];
-  if(!file) return;
-  e.target.value = ''; // reset so same file can be re-picked
+$('captureBtn').addEventListener('click', async () => {
+  const canvas = captureCroppedFrame();
+  if(!canvas) return;
 
+  closeCamera();
   show('reading');
   $('progBar').style.width = '0%';
   $('progText').textContent = 'Ξεκινώ...';
 
+  // Παίρνουμε το κομμένο καρέ σαν blob για το Tesseract
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
+
   try {
-    const result = await Tesseract.recognize(file, 'ell+eng', {
+    const result = await Tesseract.recognize(blob, 'ell+eng', {
       logger: m => {
         if(m.status === 'recognizing text'){
           const pct = Math.round(m.progress * 100);
@@ -418,6 +625,9 @@ $('camInput').addEventListener('change', async (e) => {
     setField('f_company','wrap_company', fields.company);
     setField('f_phone','wrap_phone', fields.phone);
     setField('f_email','wrap_email', fields.email);
+    // ΑΦΜ και διεύθυνση: αν δεν βρέθηκε, μένουν άδεια αλλά ΧΩΡΙΣ κόκκινο (τα συμπληρώνει εκείνη)
+    setField('f_afm','wrap_afm', fields.afm, false);
+    setField('f_address','wrap_address', fields.address, false);
 
     $('rawBox').textContent = rawText.trim() || '(δεν διάβασα κείμενο — δοκίμασε πιο καθαρή φωτογραφία)';
     $('rawBox').classList.remove('show');
@@ -428,33 +638,32 @@ $('camInput').addEventListener('change', async (e) => {
     console.error('OCR error:', err);
     $('errBox').textContent = 'Κάτι πήγε στραβά με το διάβασμα. Δοκίμασε ξανά με πιο καθαρή φωτογραφία.';
     $('errBox').style.display = 'block';
-    // Άδεια πεδία για χειροκίνητη συμπλήρωση
     setField('f_name','wrap_name','');
     setField('f_company','wrap_company','');
     setField('f_phone','wrap_phone','');
     setField('f_email','wrap_email','');
+    setField('f_afm','wrap_afm','', false);
+    setField('f_address','wrap_address','', false);
     $('rawBox').textContent = '';
     show('form');
   }
 });
 
-// Toggle raw text
 $('rawToggle').addEventListener('click', () => {
   $('rawBox').classList.toggle('show');
 });
 
-// ==================== SAVE / CANCEL ====================
 $('okBtn').addEventListener('click', () => {
   const contact = {
     name: $('f_name').value.trim(),
     company: $('f_company').value.trim(),
+    afm: $('f_afm').value.trim(),
+    address: $('f_address').value.trim(),
     phone: $('f_phone').value.trim(),
     email: $('f_email').value.trim(),
     status: 'Υποψήφιος',
     createdAt: new Date().toISOString()
   };
-
-  // Αποθήκευση τοπικά (μέχρι να συνδεθεί ο Απόστολος το backend)
   try {
     const list = JSON.parse(localStorage.getItem('cardScanner_contacts') || '[]');
     list.push(contact);
@@ -462,7 +671,6 @@ $('okBtn').addEventListener('click', () => {
   } catch(err){
     console.warn('LocalStorage save failed:', err);
   }
-
   $('doneName').textContent = contact.name || contact.company || 'Ο πελάτης';
   show('done');
 });
@@ -470,7 +678,9 @@ $('okBtn').addEventListener('click', () => {
 $('cancelBtn').addEventListener('click', () => show('scan'));
 $('newBtn').addEventListener('click', () => show('scan'));
 
-// ==================== START ====================
+// Κλείσιμο κάμερας όταν φύγει η σελίδα
+window.addEventListener('pagehide', closeCamera);
+
 show('scan');
 </script>
 </body>
