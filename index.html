@@ -405,35 +405,29 @@ function parseCard(rawText){
   const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const joined = lines.join(' ');
 
-  // --- EMAIL ---
-  const emailMatch = joined.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-  const email = emailMatch ? emailMatch[0].toLowerCase() : '';
+  // --- EMAIL --- (προτιμώ προσωπικό αντί για info@, contact@, κτλ)
+  const allEmails = (joined.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [])
+    .map(e => e.toLowerCase());
+  const uniqueEmails = [...new Set(allEmails)];
+  const genericPrefixes = /^(?:info|contact|sales|hello|admin|office|support|marketing|reception|welcome|general|enquir|inquir|noreply|no-reply)/i;
+  const personalEmail = uniqueEmails.find(e => !genericPrefixes.test(e.split('@')[0]));
+  const email = personalEmail || uniqueEmails[0] || '';
 
   // --- PHONE ---
   function classifyPhone(str) {
     const digits = str.replace(/\D/g, '');
     const hasPlus = /\+/.test(str);
-
-    // === ΕΛΛΑΔΑ (+30) ===
     if(digits.length === 10 && /^6/.test(digits)) return { digits, country: 'GR', priority: 1 };
     if(digits.length === 10 && /^2/.test(digits)) return { digits, country: 'GR', priority: 2 };
     if(digits.length === 12 && /^306/.test(digits)) return { digits: digits.substring(2), country: 'GR', priority: 1 };
     if(digits.length === 12 && /^302/.test(digits)) return { digits: digits.substring(2), country: 'GR', priority: 2 };
-
-    // === ΚΥΠΡΟΣ (+357) ===
-    // Κινητό: 9x, Σταθερό: 2x (8 ψηφία μετά το +357)
     if(digits.length === 11 && /^3579/.test(digits)) return { digits: digits.substring(3), country: 'CY', priority: 3 };
     if(digits.length === 11 && /^3572/.test(digits)) return { digits: digits.substring(3), country: 'CY', priority: 4 };
-
-    // === ΔΙΕΘΝΕΣ FALLBACK ===
-    // Αν έχει + και εύλογο μήκος (10-15 ψηφία), το κρατάμε ως έχει
     if(hasPlus && digits.length >= 10 && digits.length <= 15) {
       return { digits, country: 'INTL', priority: 5, raw: str.trim() };
     }
-
     return null;
   }
-  // Μορφοποίηση: ελληνικά "+30 XXX XX XX XXX", κυπριακά "+357 XX XXX XXX", διεθνή όπως ήταν
   function formatPhone(entry) {
     const { digits, country, raw } = entry;
     if(country === 'GR' && digits.length === 10) {
@@ -456,18 +450,15 @@ function parseCard(rawText){
   foundPhones.sort((a, b) => a.priority - b.priority);
   const phone = foundPhones.length ? formatPhone(foundPhones[0]) : '';
 
-  // --- ΑΦΜ (VAT number) ---
-  // 9-ψήφιος αριθμός συνήθως με λέξεις "ΑΦΜ", "VAT", "Α.Φ.Μ."
+  // --- ΑΦΜ ---
   let afm = '';
   const afmLine = lines.find(l => /(?:α\.?φ\.?μ|vat|tax\s*(?:id|no))/i.test(l));
   if(afmLine){
     const m = afmLine.match(/\b(\d{9})\b/);
     if(m) afm = m[1];
   }
-  // Fallback: αναζήτηση αυτόνομου 9ψήφιου αριθμού
   if(!afm){
     for(const l of lines){
-      // Αγνόησε γραμμές τηλεφώνων ή ΓΕΜΗ
       if(/(?:τηλ|phone|tel|κιν|mob|γε\.?μη|ge\.?mh)/i.test(l)) continue;
       const m = l.match(/(?<!\d)(\d{9})(?!\d)/);
       if(m){ afm = m[1]; break; }
@@ -475,25 +466,28 @@ function parseCard(rawText){
   }
 
   // --- ADDRESS ---
-  // Ψάχνει γραμμή με στοιχεία διεύθυνσης: αριθμός + πόλη ή ΤΚ ή γνωστές λέξεις
   let address = '';
   for(const l of lines){
     if(/@|www\.|http/.test(l)) continue;
-    // Χαρακτηριστικά διεύθυνσης: αριθμός οδού + ΤΚ 5 ψηφίων ή πόλη
     const hasStreetNumber = /\b\d{1,4}\b/.test(l);
     const hasPostcode = /\b\d{3}\s?\d{2}\b/.test(l);
     const hasStreetWord = /(?:οδός|λεωφ|street|str\.|ave|avenue|road|rd\.)/i.test(l);
-    const hasCity = /\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο|λάρισα|βόλος|ιωάννινα|χανιά|νέα\s+ιωνία|πειραι|athens|thessaloniki)\b/i.test(l);
+    const hasCity = /\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο|λάρισα|βόλος|ιωάννινα|χανιά|νέα\s+ιωνία|πειραι|χολαργ|athens|thessaloniki|nicosia|limassol)\b/i.test(l);
     if((hasStreetNumber && hasCity) || hasPostcode || (hasStreetWord && hasStreetNumber)){
       address = l.trim();
       break;
     }
   }
+  // Καθαρισμός: αν η διεύθυνση περιέχει τηλέφωνο, το αφαιρώ
+  if(address){
+    address = address.replace(/[%℡«»☎☏]?\s*\+?\d[\d\s\-\.\(\)\/]{7,}\d/g, '').trim();
+    address = address.replace(/^[%«»℡☎☏\s\-,.:]+/, '').trim();
+  }
 
-  // --- NAME & COMPANY ---
+  // --- HELPERS ---
   const nonNameLabels = /^(?:επίσημος\s+συνεργάτης|επίσημος\s+διανομέας|official\s+partner|authorized\s+(?:dealer|reseller|partner)|premium\s+partner|gold\s+partner|silver\s+partner|platinum\s+partner|certified\s+partner|value\s+added\s+reseller|επίσημος\s+αντιπρόσωπος)\s*$/i;
 
-  const badLine = /(@|www\.|http|street|str\.|\bοδός\b|\bτκ\b|\bτ\.κ|\bλεωφ|\bγε\.?μη|\bα\.?φ\.?μ|vat|p\.o\.\s?box|p\.c\.|address|διεύθυνση|\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο)\b|\d{3}\s?\d{2}\s+[Α-Ωα-ω])/i;
+  const badLine = /(@|www\.|http|street|str\.|\bοδός\b|\bτκ\b|\bτ\.κ|\bλεωφ|\bγε\.?μη|\bα\.?φ\.?μ|vat|p\.o\.\s?box|p\.c\.|address|διεύθυνση|\b(?:αθήνα|θεσσαλονίκη|πάτρα|ηράκλειο|χολαργ)\b|\d{3}\s?\d{2}\s+[Α-Ωα-ω])/i;
 
   const cleanLines = lines.filter(l =>
     !badLine.test(l) &&
@@ -506,6 +500,7 @@ function parseCard(rawText){
     'SERVICES','SOLUTIONS','SYSTEMS','TECHNOLOGIES','CONSULTING','EXPRESS','LOGISTICS',
     'GROUP','MANAGEMENT','INTERNATIONAL','HELLAS','SOFTWARE','QUALITY','MEDIA','DIGITAL',
     'FINANCE','INSURANCE','TRAVEL','INDUSTRIES','MARKETING','TRADING','WORLDWIDE',
+    'CENTER','CENTRE',
     'ΑΕ','Α.Ε.','ΕΠΕ','Ε.Π.Ε','ΟΕ','Ο.Ε.','ΙΚΕ','Ι.Κ.Ε',
     'A.E.','AE','EPE','LTD','LIMITED','INC','SA','S.A.','GMBH','BV','CORP','COMPANY','CO.'
   ];
@@ -515,6 +510,18 @@ function parseCard(rawText){
   );
 
   const titleMark = /^(?:manager|director|ceo|cto|cfo|coo|president|vice|head|chief|διευθυντ|υπεύθυν|πρόεδρ|business\s+development|sales|marketing|engineer|consultant|advisor|owner|founder|partner|supervisor|specialist|coordinator|executive|assistant|account|senior|junior|lead|principal|direct)/i;
+
+  // Ανίχνευση σκουπιδιών: γραμμές που ο βοηθός έβγαλε από λογότυπα ή θόρυβο
+  function looksLikeGarbage(line) {
+    const trimmed = line.trim();
+    const words = trimmed.split(/\s+/);
+    if(words.length >= 5) {
+      const tinyWords = words.filter(w => w.length <= 3).length;
+      if(tinyWords / words.length > 0.7) return true;
+    }
+    if(words.filter(w => w.length === 1).length >= 3) return true;
+    return false;
+  }
 
   function isNameLike(l) {
     const trimmed = l.trim();
@@ -531,11 +538,42 @@ function parseCard(rawText){
     return true;
   }
 
+  // Μία λέξη που μοιάζει με μέρος ονόματος (για ονόματα σε πολλαπλές γραμμές)
+  function isSingleNameWord(l) {
+    const trimmed = l.trim();
+    const words = trimmed.split(/\s+/);
+    if(words.length !== 1) return false;
+    const w = words[0];
+    if(w.length < 3 || w.length > 20) return false;
+    if(!/^[A-ZΑ-ΩΆΈΉΊΌΎΏ]/.test(w)) return false;
+    if(!/^[a-zA-ZΑ-Ωα-ωΆ-Ώά-ώΪΫϊϋΐΰ]+$/.test(w)) return false;
+    if(titleMark.test(w)) return false;
+    if(companyMarkerRegex.test(w)) return false;
+    return true;
+  }
+
+  // Παράγει "όνομα εταιρείας" από το domain του email (fallback)
+  function companyFromEmail(em) {
+    if(!em) return '';
+    const domain = em.split('@')[1];
+    if(!domain) return '';
+    const parts = domain.split('.');
+    if(parts.length < 2) return '';
+    const raw = parts[0];
+    const genericDomains = /^(?:gmail|yahoo|hotmail|outlook|live|aol|icloud|me|mail|protonmail|yandex|cytanet|otenet|forthnet)$/i;
+    if(genericDomains.test(raw)) return '';
+    return raw.charAt(0).toUpperCase() + raw.slice(1);
+  }
+
+  // --- COMPANY DETECTION ---
   let name = '', company = '';
   let companyLineIdx = -1;
+  let nameLineIndices = [];
 
+  // Βήμα 1: γραμμή με εταιρικό σήμα (όχι σκουπίδια)
   for(let i = 0; i < cleanLines.length; i++) {
     const line = cleanLines[i];
+    if(looksLikeGarbage(line)) continue;
     if(companyMarkerRegex.test(line)) {
       const upperLine = line.toUpperCase();
       let bestEnd = 0;
@@ -552,28 +590,59 @@ function parseCard(rawText){
     }
   }
 
+  // --- NAME DETECTION ---
+  // Βήμα 1: όνομα σε ΜΙΑ γραμμή (2-4 λέξεις)
   for(let i = 0; i < cleanLines.length; i++) {
     if(i === companyLineIdx) continue;
+    if(looksLikeGarbage(cleanLines[i])) continue;
     if(isNameLike(cleanLines[i])) {
       name = cleanLines[i].trim();
+      nameLineIndices = [i];
       break;
     }
   }
 
-  if(!company) {
-    for(let i = 0; i < cleanLines.length; i++) {
-      const l = cleanLines[i];
-      if(l.trim() === name) continue;
-      if(titleMark.test(l)) continue;
-      if(isNameLike(l)) continue;
-      if(l.length >= 3) { company = l.trim(); break; }
+  // Βήμα 2: όνομα σε ΔΥΟ συνεχόμενες γραμμές (π.χ. ΤΡΙΚΚΑΣ / ΓΙΑΝΝΗΣ)
+  if(!name) {
+    for(let i = 0; i < cleanLines.length - 1; i++) {
+      if(i === companyLineIdx || i+1 === companyLineIdx) continue;
+      if(isSingleNameWord(cleanLines[i]) && isSingleNameWord(cleanLines[i+1])) {
+        name = cleanLines[i].trim() + ' ' + cleanLines[i+1].trim();
+        nameLineIndices = [i, i+1];
+        break;
+      }
     }
   }
 
+  // --- FALLBACKS ---
+  // Fallback εταιρείας: πρώτη «λογική» γραμμή (χωρίς name/title/garbage)
+  if(!company) {
+    for(let i = 0; i < cleanLines.length; i++) {
+      if(nameLineIndices.includes(i)) continue;
+      const l = cleanLines[i];
+      if(titleMark.test(l)) continue;
+      if(isNameLike(l)) continue;
+      if(looksLikeGarbage(l)) continue;
+      if(l.length >= 4 && /[a-zA-ZΑ-Ωα-ω]{3,}/.test(l)) {
+        company = l.trim();
+        break;
+      }
+    }
+  }
+
+  // Fallback εταιρείας: από το domain του email (π.χ. epsiloncenter.gr → Epsiloncenter)
+  if(!company && email) {
+    company = companyFromEmail(email);
+  }
+
+  // Fallback ονόματος
   if(!name) {
-    for(const l of cleanLines) {
+    for(let i = 0; i < cleanLines.length; i++) {
+      if(i === companyLineIdx) continue;
+      const l = cleanLines[i];
       if(l.trim() === company) continue;
       if(titleMark.test(l)) continue;
+      if(looksLikeGarbage(l)) continue;
       if(l.length >= 3) { name = l.trim(); break; }
     }
   }
