@@ -412,16 +412,38 @@ function parseCard(rawText){
   // --- PHONE ---
   function classifyPhone(str) {
     const digits = str.replace(/\D/g, '');
-    if(digits.length === 10 && /^6/.test(digits)) return { digits, priority: 1 };
-    if(digits.length === 10 && /^2/.test(digits)) return { digits, priority: 2 };
-    if(digits.length === 12 && /^306/.test(digits)) return { digits: digits.substring(2), priority: 1 };
-    if(digits.length === 12 && /^302/.test(digits)) return { digits: digits.substring(2), priority: 2 };
+    const hasPlus = /\+/.test(str);
+
+    // === ΕΛΛΑΔΑ (+30) ===
+    if(digits.length === 10 && /^6/.test(digits)) return { digits, country: 'GR', priority: 1 };
+    if(digits.length === 10 && /^2/.test(digits)) return { digits, country: 'GR', priority: 2 };
+    if(digits.length === 12 && /^306/.test(digits)) return { digits: digits.substring(2), country: 'GR', priority: 1 };
+    if(digits.length === 12 && /^302/.test(digits)) return { digits: digits.substring(2), country: 'GR', priority: 2 };
+
+    // === ΚΥΠΡΟΣ (+357) ===
+    // Κινητό: 9x, Σταθερό: 2x (8 ψηφία μετά το +357)
+    if(digits.length === 11 && /^3579/.test(digits)) return { digits: digits.substring(3), country: 'CY', priority: 3 };
+    if(digits.length === 11 && /^3572/.test(digits)) return { digits: digits.substring(3), country: 'CY', priority: 4 };
+
+    // === ΔΙΕΘΝΕΣ FALLBACK ===
+    // Αν έχει + και εύλογο μήκος (10-15 ψηφία), το κρατάμε ως έχει
+    if(hasPlus && digits.length >= 10 && digits.length <= 15) {
+      return { digits, country: 'INTL', priority: 5, raw: str.trim() };
+    }
+
     return null;
   }
-  // Μορφοποίηση: 6936030211 → "+30 693 60 30 211"
-  function formatGreekPhone(tenDigits) {
-    if(tenDigits.length !== 10) return tenDigits;
-    return '+30 ' + tenDigits.substring(0,3) + ' ' + tenDigits.substring(3,5) + ' ' + tenDigits.substring(5,7) + ' ' + tenDigits.substring(7,10);
+  // Μορφοποίηση: ελληνικά "+30 XXX XX XX XXX", κυπριακά "+357 XX XXX XXX", διεθνή όπως ήταν
+  function formatPhone(entry) {
+    const { digits, country, raw } = entry;
+    if(country === 'GR' && digits.length === 10) {
+      return '+30 ' + digits.substring(0,3) + ' ' + digits.substring(3,5) + ' ' + digits.substring(5,7) + ' ' + digits.substring(7,10);
+    }
+    if(country === 'CY' && digits.length === 8) {
+      return '+357 ' + digits.substring(0,2) + ' ' + digits.substring(2,5) + ' ' + digits.substring(5,8);
+    }
+    if(country === 'INTL' && raw) return raw;
+    return digits;
   }
   const foundPhones = [];
   for(const line of lines) {
@@ -432,7 +454,7 @@ function parseCard(rawText){
     }
   }
   foundPhones.sort((a, b) => a.priority - b.priority);
-  const phone = foundPhones.length ? formatGreekPhone(foundPhones[0].digits) : '';
+  const phone = foundPhones.length ? formatPhone(foundPhones[0]) : '';
 
   // --- ΑΦΜ (VAT number) ---
   // 9-ψήφιος αριθμός συνήθως με λέξεις "ΑΦΜ", "VAT", "Α.Φ.Μ."
